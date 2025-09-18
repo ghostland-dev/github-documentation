@@ -3,10 +3,12 @@
 import { useState } from "react"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { FileText, Package, Settings, Zap, Github } from "lucide-react"
 import { GitHubConnector } from "@/components/github-connector"
 import { RepositoryDashboard } from "@/components/repository-dashboard"
 import { DocumentationGenerator } from "@/components/documentation-generator"
+import { SettingsPanel } from "@/components/settings-panel"
 import type { GitHubAPI } from "@/lib/github-api"
 import type { RepositoryAnalyzer } from "@/lib/repository-analyzer"
 
@@ -16,6 +18,14 @@ export default function HomePage() {
   const [repositories, setRepositories] = useState<any[]>([])
   const [githubAPI, setGithubAPI] = useState<GitHubAPI | null>(null)
   const [analyzer, setAnalyzer] = useState<RepositoryAnalyzer | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
+  const [githubToken, setGithubToken] = useState("")
+  const [geminiApiKey, setGeminiApiKey] = useState("")
+
+  const handleTokensUpdate = (tokens: { github?: string; gemini?: string }) => {
+    if (tokens.github) setGithubToken(tokens.github)
+    if (tokens.gemini) setGeminiApiKey(tokens.gemini)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -37,6 +47,9 @@ export default function HomePage() {
                 <Zap className="mr-1 h-3 w-3" />
                 Gemini AI
               </Badge>
+              <Button variant="ghost" size="icon" onClick={() => setShowSettings(true)}>
+                <Settings className="h-5 w-5" />
+              </Button>
             </div>
           </div>
         </div>
@@ -108,6 +121,15 @@ export default function HomePage() {
           <RepositoryDashboard repositories={repositories} onSelectRepository={setSelectedRepo} />
         )}
       </main>
+
+      {/* Settings Panel */}
+      <SettingsPanel
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        githubToken={githubToken}
+        geminiApiKey={geminiApiKey}
+        onTokensUpdate={handleTokensUpdate}
+      />
     </div>
   )
 }
